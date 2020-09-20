@@ -25,6 +25,7 @@ use Rose\IO\Path;
 use Rose\IO\File;
 
 use Rose\Configuration;
+use Rose\Strings;
 use Rose\Regex;
 use Rose\Text;
 use Rose\Gateway;
@@ -153,7 +154,10 @@ class Router
 			else if ($has_private)
 			{
 				if ($src_path)
+				{
+					http_response_code(404);
 					throw new Error('Not Found: ' . $src_path);
+				}
 
 				return $this->content('/login', $target_path);
 			}
@@ -162,7 +166,10 @@ class Router
 		if ($file == null)
 		{
 			if ($src_path)
+			{
+				http_response_code(404);
 				throw new Error('Not Found: ' . $src_path);
+			}
 
 			return $this->content('/404', $target_path);
 		}
@@ -170,6 +177,9 @@ class Router
 		// *********************************************
 		$data = new Map ([
 			'router' => [
+				'path' => Path::dirname($file),
+				'url' => $gateway->ep.Path::dirname($file),
+
 				'target' => $target_path,
 				'source' => $cur_path,
 				'target_url' => $gateway->ep.Text::substring($target_path, 1),
@@ -189,7 +199,15 @@ class Router
 		if ($conf->has('layouts') && $conf->layouts->has($name))
 			$layout = $conf->layouts->{$name};
 
-		echo $this->expand ($layout, $data);
+		if (Path::exists($layout))
+			$output = $this->expand ($layout, $data);
+		else
+			$output = $data->content;
+
+		$output = Text::replace('////', $gateway->ep.(Strings::getInstance()->lang != Configuration::getInstance()->Locale->lang ? Strings::getInstance()->lang.'/' : ''), $output);
+		$output = Text::replace('///', $gateway->ep, $output);
+
+		echo $output;
 	}
 };
 
