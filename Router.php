@@ -63,8 +63,8 @@ class Router
 		self::$instance->base = 'resources/content';
 		self::$instance->cache = 'volatile/content';
 
-		if (!Path::exists(self::$instance->cache))
-			Directory::create(self::$instance->cache, true);
+		//if (!Path::exists(self::$instance->cache))
+		//	Directory::create(self::$instance->cache, true);
 
 		Gateway::registerService ('router', self::$instance);
 	}
