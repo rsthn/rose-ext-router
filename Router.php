@@ -60,7 +60,7 @@ class Router
 	{
 		self::$instance = new Router();
 
-		self::$instance->base = 'resources/content';
+		self::$instance->base = Main::$CORE_DIR.'/content';
 		self::$instance->cache = 'volatile/content';
 
 		//if (!Path::exists(self::$instance->cache))
