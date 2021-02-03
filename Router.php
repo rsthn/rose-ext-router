@@ -24,12 +24,14 @@ use Rose\IO\Directory;
 use Rose\IO\Path;
 use Rose\IO\File;
 
+use Rose\Main;
 use Rose\Configuration;
 use Rose\Strings;
 use Rose\Regex;
 use Rose\Text;
 use Rose\Gateway;
 use Rose\Session;
+use Rose\Arry;
 use Rose\Map;
 use Rose\Expr;
 
@@ -86,26 +88,41 @@ class Router
 		{
 			foreach ($conf->__nativeArray as $key => $value)
 			{
-				if (!Text::startsWith($path, $key))
-					continue;
+				$result = Regex::_matchFirst ('`^'.$key.'`', $path);
+				if (!$result->length) continue;
 
-				$relative_path = Text::substring($path, Text::length($key));
+				$relative_path = Text::substring($path, Text::length($result->get(0)));
 
 				// Action of the form "service:name" will redirect to a service given its name.
 				if (Text::startsWith($value, 'service:'))
 				{
-					$gateway->relativePath = $relative_path;
-					$value = Text::substring($value, 8);
+					$value = Expr::eval(Text::substring($value, 8), $result);
 
-					$serv = $gateway->getService($value);
-					if (!$serv) throw new Error ("Service `" . $value . "` is not registered.");
+					parse_str(parse_url($value, PHP_URL_QUERY), $args);
+					$gateway->request->merge(new Map($args), true);
+
+					$value = parse_url($value, PHP_URL_PATH);
+					$name = Text::split('/', $value)->get(0);
+					$value = Text::substring($value, Text::length($name));
+
+					$gateway->relativePath = $value . $relative_path;
+					if ($gateway->relativePath == '/') $gateway->relativePath = '';
+
+					$serv = $gateway->getService($name);
+					if (!$serv) throw new Error ("Service `" . $name . "` is not registered.");
 
 					return $serv->main();
 				}
 
 				// Action of the form "location:url" will redirect to a given URL using HTTP 'location' header.
 				if (Text::startsWith($value, 'location:'))
-					return Gateway::header('Location: ' . Text::substring($value, 9));
+				{
+					$value = Expr::eval(Text::substring($value, 9), $result);
+					return Gateway::header('Location: ' . $value);
+				}
+
+				// Default action is to change the relative path.
+				$path = Expr::eval($value);
 			}
 		}
 

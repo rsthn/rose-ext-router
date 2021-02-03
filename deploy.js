@@ -39,15 +39,15 @@ function run (command)
 
 
 run('svn-msg "Published: v'+package.version+'"')
+.then(r => run('svn-commit'))
 .then(r => run('git add .'))
-.then(r => run('git commit -F .svn\\messages.log'))
+.then(r => run('git commit -F .svn\\messages.log.old'))
 .then(r => run('git push'))
 .then(r => run('git branch temporal'))
 .then(r => run('git checkout temporal'))
 
 .then(r => run('del .gitignore'))
 .then(r => run('del deploy.js'))
-.then(r => run('del README.md'))
 
 .then(r => run('git commit -a -m "Preparing for release: '+package.version+'"'))
 .then(r => run('git push origin temporal'))
@@ -56,7 +56,7 @@ run('svn-msg "Published: v'+package.version+'"')
 .then(r => run('git checkout master'))
 .then(r => run('git branch -D temporal'))
 .then(r => run('git push origin --delete temporal'))
-//.then(r => run('git reset'))
+.then(r => run('svn revert . -R'))
 
 .then(() => {
 	console.log();
