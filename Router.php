@@ -108,6 +108,8 @@ class Router
 					$gateway->relativePath = $value . $relative_path;
 					if ($gateway->relativePath == '/') $gateway->relativePath = '';
 
+					$gateway->ep .= Text::substring($result->get(0), 1);
+
 					$serv = $gateway->getService($name);
 					if (!$serv) throw new Error ("Service `" . $name . "` is not registered.");
 
