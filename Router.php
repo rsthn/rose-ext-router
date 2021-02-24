@@ -198,13 +198,13 @@ class Router
 		// *********************************************
 		$data = new Map ([
 			'router' => [
-				'path' => Path::dirname($file),
-				'url' => $gateway->ep.Path::dirname($file),
+				'path' => Path::dirname($file) . '/',
+				'url' => $gateway->ep.Path::dirname($file) . '/',
 
-				'target' => $target_path,
-				'source' => $cur_path,
-				'target_url' => $gateway->ep.Text::substring($target_path, 1),
-				'source_url' => $gateway->ep.Text::substring($cur_path, 1)
+				'target' => $target_path . '/',
+				'source' => $cur_path . '/',
+				'target_url' => $gateway->ep.Text::substring($target_path, 1) . '/',
+				'source_url' => $gateway->ep.Text::substring($cur_path, 1) . '/'
 			]
 		]);
 

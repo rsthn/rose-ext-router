@@ -6,7 +6,16 @@ This extension adds content routing features to [Rose](https://github.com/rsthn/
 composer require rsthn/rose-ext-router
 ```
 
-After installation ensure Router is the primary service in your system by editing the `Gateway` section of your `system.conf` file and set `service=router`.
+After installation ensure Router is the primary service in your system by editing the `Gateway` section of your `system.conf` file and set `service=router`. Additionally unless you want to use `index.php/my-route/` we recommend you enable URL rewriting to make pretty URLs. If using Apache or compatible an `.htaccess` like the following will do:
+
+```
+RewriteEngine On
+RewriteBase /my-project/
+
+RewriteCond %{SCRIPT_FILENAME} !-f
+RewriteCond %{SCRIPT_FILENAME} !-d
+RewriteRule ^(.*)$ index.php/$1 [L,QSA]
+```
 
 <br/>&nbsp;
 # Default Operation
