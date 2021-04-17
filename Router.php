@@ -138,7 +138,7 @@ class Router
 	*/
 	public function expand ($path, $data)
 	{
-		return Expr::expand(Expr::parseTemplate(File::getContents($path), '{', '}'), $data);
+		return Expr::expand(Expr::parseTemplate(File::getContents($path), '{', '}', false, 1, false), $data);
 	}
 
 	/*
@@ -177,7 +177,7 @@ class Router
 				if ($src_path)
 				{
 					http_response_code(404);
-					throw new Error('Not Found: ' . $src_path);
+					throw new Error('Not Accessible: ' . $src_path);
 				}
 
 				return $this->content('/login', $target_path);
@@ -189,7 +189,7 @@ class Router
 			if ($src_path)
 			{
 				http_response_code(404);
-				throw new Error('Not Found: ' . $src_path);
+				throw new Error('Not Found: ' . ($target_path == '/404' ? $src_path : $target_path));
 			}
 
 			return $this->content('/404', $target_path);
