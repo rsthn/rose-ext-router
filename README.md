@@ -44,6 +44,7 @@ When a certain route (i.e. `/api`) should pass control to another Rose service (
 /api = service:wind
 /details/([0-9]+) = service:wind/?f=get-details&id=(1)
 /external-page = location:https://example.com/contact-us/
+/([0-9]+)/home = home/(1)
 ```
 
 ## Service Redirection

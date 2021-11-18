@@ -80,7 +80,7 @@ class Router
 		$gateway = Gateway::getInstance();
 
 		$path = $gateway->relativePath;
-		if (Text::substring($path, -1) == '/') $path = Text::substring($path, 0, -1);
+		while (Text::endsWith($path, '/')) $path = Text::substring($path, 0, -1);
 
 		// Check if the relative path is registered as a service redirection.
 		$conf = Configuration::getInstance()->Router;
@@ -102,13 +102,14 @@ class Router
 					$gateway->request->merge(new Map($args), true);
 
 					$value = parse_url($value, PHP_URL_PATH);
+
 					$name = Text::split('/', $value)->get(0);
 					$value = Text::substring($value, Text::length($name));
 
 					$gateway->relativePath = $value . $relative_path;
 					if ($gateway->relativePath == '/') $gateway->relativePath = '';
 
-					$gateway->ep .= Text::substring($result->get(0), 1);
+					$gateway->ep .= $result->get(0);
 
 					$serv = $gateway->getService($name);
 					if (!$serv) throw new Error ("Service `" . $name . "` is not registered.");
@@ -123,8 +124,13 @@ class Router
 					return Gateway::header('Location: ' . $value);
 				}
 
-				// Default action is to change the relative path.
-				$path = Expr::eval($value);
+				// Default action is to change the relative path and merge query parameter.
+				$value = Expr::eval($value, $result);
+
+				parse_str(parse_url($value, PHP_URL_QUERY), $args);
+				$gateway->request->merge(new Map($args), true);
+
+				$path = parse_url($value, PHP_URL_PATH);
 			}
 		}
 
@@ -147,6 +153,9 @@ class Router
 	public function content ($target_path, $src_path=null)
 	{
 		$gateway = Gateway::getInstance();
+
+		if (Text::endsWith($target_path, '/'))
+			$target_path = Text::substring($target_path, 0, -1);
 
 		$cur_path = $src_path ? $src_path : $target_path;
 
@@ -198,13 +207,13 @@ class Router
 		// *********************************************
 		$data = new Map ([
 			'router' => [
-				'path' => Path::dirname($file) . '/',
-				'url' => $gateway->ep.Path::dirname($file) . '/',
+				'path' => Path::dirname($file),
+				'url' => $gateway->ep.'/'.Path::dirname($file),
 
-				'target' => $target_path . '/',
-				'source' => $cur_path . '/',
-				'target_url' => $gateway->ep.Text::substring($target_path, 1) . '/',
-				'source_url' => $gateway->ep.Text::substring($cur_path, 1) . '/'
+				'target' => $target_path,
+				'source' => $cur_path,
+				'target_url' => $gateway->ep.'/'.Text::substring($target_path, 1),
+				'source_url' => $gateway->ep.'/'.Text::substring($cur_path, 1)
 			]
 		]);
 
@@ -227,11 +236,11 @@ class Router
 
 		$conf = Configuration::getInstance()->Router;
 		if ($conf->show_default_lang == 'true')
-			$output = Text::replace('////', $gateway->ep.Strings::getInstance()->lang.'/', $output);
+			$output = Text::replace('////', $gateway->ep.'/'.Strings::getInstance()->lang.'/', $output);
 		else
-			$output = Text::replace('////', $gateway->ep.(Strings::getInstance()->lang != Configuration::getInstance()->Locale->lang ? Strings::getInstance()->lang.'/' : ''), $output);
+			$output = Text::replace('////', $gateway->ep.'/'.(Strings::getInstance()->lang != Configuration::getInstance()->Locale->lang ? Strings::getInstance()->lang.'/' : ''), $output);
 
-		$output = Text::replace('///', $gateway->ep, $output);
+		$output = Text::replace('///', $gateway->ep.'/', $output);
 
 		echo $output;
 	}
