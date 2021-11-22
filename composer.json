@@ -1,7 +1,7 @@
 {
     "name": "rsthn/rose-ext-router",
     "description": "Router Extension (Rose)",
-    "version": "1.0.9",
+    "version": "1.0.10",
     "type": "rose-extension",
     "license": "Apache-2.0",
     "authors": [

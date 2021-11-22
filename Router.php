@@ -136,6 +136,9 @@ class Router
 
 		Session::open (false);
 
+		if (Path::exists('layouts/startup.fn'))
+			Expr::expand(Expr::parseTemplate(File::getContents('layouts/startup.fn'), '(', ')'), new Map());
+
 		$this->content ($path ? $path : '/home');
 	}
 
