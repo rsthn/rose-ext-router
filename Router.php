@@ -98,7 +98,7 @@ class Router
 				{
 					$value = Expr::eval(Text::substring($value, 8), $result);
 
-					parse_str(parse_url($value, PHP_URL_QUERY), $args);
+					parse_str(parse_url($value, PHP_URL_QUERY) ?? '', $args);
 					$gateway->request->merge(new Map($args), true);
 
 					$value = parse_url($value, PHP_URL_PATH);
@@ -127,7 +127,7 @@ class Router
 				// Default action is to change the relative path and merge query parameter.
 				$value = Expr::eval($value, $result);
 
-				parse_str(parse_url($value, PHP_URL_QUERY), $args);
+				parse_str(parse_url($value, PHP_URL_QUERY) ?? '', $args);
 				$gateway->request->merge(new Map($args), true);
 
 				$path = parse_url($value, PHP_URL_PATH);
