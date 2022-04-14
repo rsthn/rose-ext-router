@@ -238,7 +238,7 @@ class Router
 			$output = $data->content;
 
 		$conf = Configuration::getInstance()->Router;
-		if ($conf->show_default_lang == 'true')
+		if ($conf && $conf->show_default_lang == 'true')
 			$output = Text::replace('////', $gateway->ep.'/'.Strings::getInstance()->lang.'/', $output);
 		else
 			$output = Text::replace('////', $gateway->ep.'/'.(Strings::getInstance()->lang != (Configuration::getInstance()->Locale ? Configuration::getInstance()->Locale->lang : '') ? Strings::getInstance()->lang.'/' : ''), $output);
